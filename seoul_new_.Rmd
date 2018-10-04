@@ -1,0 +1,42 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+### 사용한 패키지
+if("rJava" %in% installed.packages("rJava") == FALSE)install.packages("rJava")
+      library(rJava)
+if("KoNLP" %in% installed.packages("KoNLP") == FALSE)install.packages("KoNLP")
+library(KoNLP)
+if("tm" %in% installed.packages("tm") == FALSE)install.packages("tm")
+library(tm)
+if("wordcloud" %in% installed.packages("wordcloud") == FALSE)install.packages("wordcloud")
+library(wordcloud)
+
+### 분석과정
+target <- readLines("https://www.dropbox.com/s/fp90obdsboz4zwn/seoul_new.txt?dl=1")
+useSejongDic()
+# target <- gsub("\\W","",target) 
+target <- gsub("\\d","",target) 
+target <- sapply(target, extractNoun, USE.NAMES = F)
+target<-unlist(target)
+class(target)
+target <- Filter(function(x){!nchar(x) == 1},target)
+head(sort(target,decreasing=T),20)
+write(unlist(target),"seoul_new_result.txt")
+target<- read.table("C:\\Users\\K\\Documents\\seoul_new_result.txt")
+target<- table(target)
+pal<- brewer.pal(8,"Dark2")
+wordcloud::wordcloud(
+  names(target),
+  freq = target,
+  min.freq = 1,
+  max.words = 200,
+  random.order = F,
+  rot.per = .1,
+  scale = c(4,0,3),
+  color = pal
+)
+
+
+
